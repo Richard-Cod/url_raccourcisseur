@@ -14,15 +14,8 @@
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 
-    <!-- Favicons -->
-    <link rel="apple-touch-icon" href="/docs/4.4/assets/img/favicons/apple-touch-icon.png" sizes="180x180">
-    <link rel="icon" href="/docs/4.4/assets/img/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
-    <link rel="icon" href="/docs/4.4/assets/img/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
-    <link rel="manifest" href="/docs/4.4/assets/img/favicons/manifest.json">
-    <link rel="mask-icon" href="/docs/4.4/assets/img/favicons/safari-pinned-tab.svg" color="#563d7c">
-    <link rel="icon" href="/docs/4.4/assets/img/favicons/favicon.ico">
-    <meta name="msapplication-config" content="/docs/4.4/assets/img/favicons/browserconfig.xml">
-    <meta name="theme-color" content="#563d7c">
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+
 
 
     <script type="text/javascript" src="https://ff.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=NCop0Gc-PYNJdM18JNZS0zegEnQkx6Aj0yXvSUic6xhZ0x7hnBf5r9LnAXG1Q-nvynXQRQWcouCa_GntZZVBHzWQQyvppLhfkJ2AxhLAOgM" charset="UTF-8"></script>
@@ -98,30 +91,107 @@
 </head>
 
 <body class="text-center">
-    <form class="form-signin" id="formulaire">
-        <img class="mb-4" src="https://lh3.googleusercontent.com/proxy/CgKxXVF3r3-SzKD9fWweYZApVe_ZVYDeKpzmf36hMyCX1IpYYCufqt_ZAwTijXCSStD-DDH0eQAuXrvXMRXu1KtwiKlYy7WxzVQVTsKureK4BCCRyio" alt="" width="72" height="72">
+    <form method="POST" class="form-signin" id="formulaire">
+        <img class="mb-4" src="https://cdn1.iconfinder.com/data/icons/social-media-vol-1-1/24/_github-512.png" alt="" width="72" height="72">
         <h1 class="h3 mb-3 font-weight-normal">Raccourcisseur d'urls</h1>
 
         <label for="urlPasse" class="sr-only">Entrez l'url à raccourcir</label>
-        <input id="urlPasse" type="text" id="urlInput" class="form-control" placeholder="Url à raccourcir" required autofocus>
+        <input id="urlPasse" type="url" name="urlLongue" class="form-control" placeholder="Url à raccourcir" required autofocus>
         <br>
 
 
-        <input type="text" id="resultInput" class="form-control invisible">
-        <button id="btnSubmit" class="btn btn-lg btn-primary btn-block" type="submit">Raccourcir </button>
-        <p class="mt-5 mb-3 text-muted">&copy; 2020-2021</p>
+        <input type="text" id="resultInput" class="form-control">
+        <button id="copie" style="display: inline;" class="btn btn-primary"><i class="fa fa-spinner fa-spin fa-x"></i></button>
+
+
+
+        <br>
+        <br>
+        <button id="btnSubmit" class="btn btn-lg btn-success btn-block" type="submit">Raccourcir </button>
+
+        <p class="mt-5 mb-3 text-muted">&copy;Richard Bathiebo 2020-2021</p>
     </form>
 
+
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
     <script>
-        formulaire = document.querySelector("#formulaire");
+        formulaire = $("#formulaire");
 
-        boutton = document.querySelector("#btnSubmit");
-        urlPasse = document.querySelector("#urlPasse");
-        resultInput = document.querySelector("#resultInput");
+        boutton = $("#btnSubmit");
+        urlPasse = $("#urlPasse");
+        resultInput = $("#resultInput");
 
-        boutton.addEventListener("click", (e) => {
+        function soumission() {
+            $.ajax({
+                url: "http://localhost:5000/api/urls/shortener",
+                type: "POST",
+
+                data: {
+                    longueUrl: urlPasse.val(),
+                },
+                success: function(response, status) {
+                    resultInput.val(response.courteUrl)
+                        //resultInput.removeClass("invisible")
+                    console.log(response, status)
+                    let secondes = 20;
+                    var refreshIntervalId = setInterval(function() {
+                        $('#copie').text(`Vous avez ${secondes} secondes pour cliquer `)
+                        secondes -= 1;
+
+                        if (secondes < 0) {
+                            $('#copie').html(`<i class="fa fa-spinner fa-spin fa-x"></i>`)
+
+                            clearInterval(refreshIntervalId);
+                        }
+
+                    }, 1000);
+
+
+                },
+                error: function(response, status) {
+                    console.log(response.responseJSON, status)
+                }
+            })
+        }
+
+
+        $('#copie').on("click", (e) => {
             e.preventDefault();
-            alert(urlPasse.value)
+
+            if (resultInput.val() !== "") {
+                let copyText = document.querySelector("#resultInput");
+                copyText.select();
+                copyText.setSelectionRange(0, 99999)
+                    /* Copy the text inside the text field */
+                document.execCommand("copy");
+
+                /* Alert the copied text */
+                alert("Vous avez copié : " + resultInput.val());
+
+
+
+            }
+
+
+        })
+
+
+        urlPasse.on('input', function() {
+            //resultInput.addClass("invisible")
+
+            // do something
+            console.log(urlPasse.val())
+        });
+        resultInput.on('input', function() {
+            resultInput.val("")
+        });
+
+        boutton.on("click", (e) => {
+            e.preventDefault();
+            soumission()
         })
     </script>
 </body>

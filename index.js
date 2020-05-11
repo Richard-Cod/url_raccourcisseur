@@ -5,8 +5,8 @@ var bodyParser = require('body-parser')
 
 app.set('view engine', 'ejs');
 
-app.use(express.json()) // for parsing application/json
-app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 
 require('dotenv').config()
@@ -31,6 +31,15 @@ controllers = require('./controllers/urls')
 app.get('/', function(req, res) {
     res.render('pages/index');
 });
+
+
+
+app.post('/', function(req, res) {
+    console.log(req.body)
+    res.render('pages/index');
+});
+
+
 
 
 //Definition des routes api

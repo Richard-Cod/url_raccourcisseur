@@ -1,5 +1,5 @@
 const Url = require('../models/URL');
-
+const validUrl = require('valid-url');
 
 exports.url_get_all = function (req, res) {
     try {
@@ -13,9 +13,13 @@ exports.url_get_all = function (req, res) {
 
 
 exports.url_shortener = async function (req, res) {
-  
-  const {longueUrl} = req.body
   try {
+      const {longueUrl} = req.body
+      console.log(req.body)
+      if (!validUrl.isUri(longueUrl)) {
+        console.log("Url invalide",longueUrl)
+        return res.status(401).json('Url invalide');
+      }
       let url = await Url.findOne({longueUrl})
   //Si l'url existe déja on la renvoie sans rien faire 
       if(url){
